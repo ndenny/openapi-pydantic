@@ -1,0 +1,84 @@
+from typing import Any
+
+from pydantic import BaseModel
+
+from openapi_pydantic.compat import PYDANTIC_V2, ConfigDict, Extra
+
+from .payload_replacement import PayloadReplacement
+
+_examples = [
+    {
+        "contentType": "application/json",
+        "payload": """
+            "petOrder": {
+                "petId": "{$inputs.pet_id}",
+                "couponCode": "{$inputs.coupon_code}",
+                "quantity": "{$inputs.quantity}",
+                "status": "placed",
+                "complete": false
+            }
+        """
+    },
+    {
+        "contentType": "application/json",
+        "payload": {
+            "petOrder": {
+                "petId": "{$inputs.pet_id}",
+                "couponCode": "{$inputs.coupon_code}",
+                "quantity": "{$inputs.quantity}",
+                "status": "placed",
+                "complete": False
+            }
+        }
+    },
+    {
+        "contentType": "application/json",
+        "payload": "$inputs.petOrderRequest",
+    },
+    {
+        "contentType": "application/xml",
+        "payload": """
+            <petOrder>
+                <petId>{$inputs.pet_id}</petId>
+                <couponCode>{$inputs.coupon_code}</couponCode>
+                <quantity>{$inputs.quantity}</quantity>
+                <status>placed</status>
+                <complete>false</complete>
+            </petOrder>
+        """
+    },
+    {
+        "contentType": "application/x-www-form-urlencoded",
+        "payload": {
+            "client_id": "$inputs.clientId",
+            "grant_type": "$inputs.grantType",
+            "redirect_uri": "$inputs.redirectUri",
+            "client_secret": "$inputs.clientSecret",
+            "code": "$steps.browser-authorize.outputs.code",
+            "scope": "$inputs.scope"
+        }
+    },
+    {
+        "contentType": "application/x-www-form-urlencoded",
+        "payload": "client_id={$inputs.clientId}&grant_type={$inputs.grantType}&redirect_uri={$inputs.redirectUri}&client_secret={$inputs.clientSecret}&code={$steps.browser-authorize.outputs.code}&scope={$inputs.scope}" # noqa: E501
+    },
+]
+
+
+class RequestBody(BaseModel):
+
+    contentType: str
+    payload: Any
+    replacements: PayloadReplacement
+
+    if PYDANTIC_V2:
+        model_config = ConfigDict(
+            extra="allow",
+            json_schema_extra={"examples": _examples},
+        )
+
+    else:
+
+        class Config:
+            extra = Extra.allow
+            schema_extra = {"examples": _examples}

@@ -1,6 +1,6 @@
-from typing import Any
+from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from openapi_pydantic.compat import PYDANTIC_V2, ConfigDict, Extra
 
@@ -17,7 +17,7 @@ _examples = [
                 "status": "placed",
                 "complete": false
             }
-        """
+        """,
     },
     {
         "contentType": "application/json",
@@ -27,9 +27,9 @@ _examples = [
                 "couponCode": "{$inputs.coupon_code}",
                 "quantity": "{$inputs.quantity}",
                 "status": "placed",
-                "complete": False
+                "complete": False,
             }
-        }
+        },
     },
     {
         "contentType": "application/json",
@@ -45,7 +45,7 @@ _examples = [
                 <status>placed</status>
                 <complete>false</complete>
             </petOrder>
-        """
+        """,
     },
     {
         "contentType": "application/x-www-form-urlencoded",
@@ -55,21 +55,34 @@ _examples = [
             "redirect_uri": "$inputs.redirectUri",
             "client_secret": "$inputs.clientSecret",
             "code": "$steps.browser-authorize.outputs.code",
-            "scope": "$inputs.scope"
-        }
+            "scope": "$inputs.scope",
+        },
     },
     {
         "contentType": "application/x-www-form-urlencoded",
-        "payload": "client_id={$inputs.clientId}&grant_type={$inputs.grantType}&redirect_uri={$inputs.redirectUri}&client_secret={$inputs.clientSecret}&code={$steps.browser-authorize.outputs.code}&scope={$inputs.scope}" # noqa: E501
+        "payload": "client_id={$inputs.clientId}&grant_type={$inputs.grantType}&redirect_uri={$inputs.redirectUri}&client_secret={$inputs.clientSecret}&code={$steps.browser-authorize.outputs.code}&scope={$inputs.scope}",  # noqa: E501
     },
 ]
 
+PayloadTypes = str | dict | list | int | float | bool | None
+
 
 class RequestBody(BaseModel):
+    """The request body to pass to an operation as referenced by operationId or operationPath."""
 
     contentType: str
-    payload: Any
-    replacements: PayloadReplacement
+    """
+    The Content-Type for the request content
+    """
+
+    payload: PayloadTypes
+
+    replacements: Optional[List[PayloadReplacement]] = Field(
+        default=None, unique_items=True
+    )
+    """
+    A list of locations and values to set within a payload
+    """
 
     if PYDANTIC_V2:
         model_config = ConfigDict(

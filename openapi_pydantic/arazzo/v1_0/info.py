@@ -27,12 +27,12 @@ class Info(BaseModel):
     **REQUIRED**. A human readable title of the Arazzo Description.
     """
 
-    summary: Optional[str]
+    summary: Optional[str] = None
     """
     A short summary of the Arazzo Description.
     """
 
-    description: str
+    description: Optional[str] = None
     """
     A description of the purpose of the workflows defined.
     [CommonMark syntax](https://spec.commonmark.org/) MAY be used for rich text

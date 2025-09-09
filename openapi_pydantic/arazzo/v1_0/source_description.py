@@ -1,8 +1,10 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from openapi_pydantic.compat import PYDANTIC_V2, ConfigDict, Extra
+
+from .uri_reference import UriReference
 
 _examples = [
     {
@@ -15,12 +17,12 @@ _examples = [
 class SourceDescription(BaseModel):
     """A description of the source of the API definition."""
 
-    name: str
+    name: str = Field(format='^[A-Za-z0-9_\\-]+$')
     """
     **REQUIRED**. The name of the source.
     """
 
-    url: str
+    url: UriReference
     """
     **REQUIRED**. The URL of the source.
     """
